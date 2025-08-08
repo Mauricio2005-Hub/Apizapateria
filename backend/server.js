@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./docs/swagger.json');
+const swaggerSpec = require('../swaggerOptions');
 
 // Importar rutas
 const clienteRoutes = require('./routes/clienteRoutes');
@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Swagger UI visual mejorado
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: `
     .swagger-ui .topbar { display: none }
     .swagger-ui .info .title { color: #667eea; font-size: 2.5rem; }
@@ -74,7 +74,7 @@ app.get('/', (req, res) => {
 
 // Ruta para el archivo Swagger JSON (mantener para compatibilidad)
 app.get('/swagger.json', (req, res) => {
-  res.sendFile(path.join(__dirname, './docs/swagger.json'));
+  res.json(swaggerSpec);
 });
 
 // Ruta para manejar todas las páginas del frontend
