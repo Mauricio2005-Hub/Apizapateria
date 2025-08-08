@@ -22,7 +22,7 @@ const app = express();
 // Configuración de puerto para Render (dinámico en producción)
 const PORT = process.env.PORT || 8080;
 
-// Middleware
+// Middleware básicos
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://zapateria-fercho-api.onrender.com', 'https://zapateria-fercho.onrender.com']
@@ -43,8 +43,22 @@ if (process.env.NODE_ENV !== 'production') {
   });
 }
 
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, '../frontend')));
+// ✅ RUTAS API PRIMERO (antes de archivos estáticos)
+app.use('/api/clientes', clienteRoutes);
+app.use('/api/pedidos', pedidoRoutes);
+app.use('/api/cobros', cobroRoutes);
+app.use('/api/sucursales', sucursalRoutes);
+app.use('/api/materiales', materialRoutes);
+
+// Ruta de health check para Render
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Servidor funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // ✅ Ruta Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
@@ -78,31 +92,17 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   explorer: true
 }));
 
-// Rutas API
-app.use('/api/clientes', clienteRoutes);
-app.use('/api/pedidos', pedidoRoutes);
-app.use('/api/cobros', cobroRoutes);
-app.use('/api/sucursales', sucursalRoutes);
-app.use('/api/materiales', materialRoutes);
-
-// Ruta de health check para Render
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Servidor funcionando correctamente',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+// Ruta para el archivo Swagger JSON
+app.get('/swagger.json', (req, res) => {
+  res.json(swaggerSpec);
 });
+
+// ✅ SERVIR ARCHIVOS ESTÁTICOS DESPUÉS DE LAS RUTAS API
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Ruta principal - Menú de navegación
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
-
-// Ruta para el archivo Swagger JSON
-app.get('/swagger.json', (req, res) => {
-  res.json(swaggerSpec);
 });
 
 // Ruta para manejar todas las páginas del frontend
@@ -127,7 +127,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Ruta para manejar rutas no encontradas
+// Ruta para manejar rutas no encontradas (al final)
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
