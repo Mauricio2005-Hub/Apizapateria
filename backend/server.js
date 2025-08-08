@@ -18,12 +18,30 @@ const materialRoutes = require('./routes/materialRoutes');
 const { testConnection } = require('./db');
 
 const app = express();
+
+// Configuración de puerto para Render
 const PORT = process.env.PORT || 8080;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://zapateria-fercho-api.onrender.com', 'https://zapateria-fercho.onrender.com']
+    : true,
+  credentials: true
+}));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Middleware de logging para desarrollo
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    if (req.body && Object.keys(req.body).length > 0) {
+      console.log('Request Body:', JSON.stringify(req.body, null, 2));
+    }
+    next();
+  });
+}
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -67,12 +85,22 @@ app.use('/api/cobros', cobroRoutes);
 app.use('/api/sucursales', sucursalRoutes);
 app.use('/api/materiales', materialRoutes);
 
+// Ruta de health check para Render
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Servidor funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Ruta principal - Menú de navegación
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
-// Ruta para el archivo Swagger JSON (mantener para compatibilidad)
+// Ruta para el archivo Swagger JSON
 app.get('/swagger.json', (req, res) => {
   res.json(swaggerSpec);
 });
@@ -108,14 +136,42 @@ app.use('*', (req, res) => {
 });
 
 // Iniciar servidor
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
   console.log(`📊 Menú principal: http://localhost:${PORT}`);
   console.log(`🔧 API Base: http://localhost:${PORT}/api`);
   console.log(`📚 Swagger UI disponible en http://localhost:${PORT}/api-docs`);
+  console.log(`🏥 Health check: http://localhost:${PORT}/health`);
   
   // Probar conexión a la base de datos
   await testConnection();
+});
+
+// Manejo de errores del servidor
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Puerto ${PORT} ya está en uso`);
+    process.exit(1);
+  } else {
+    console.error('❌ Error del servidor:', error);
+  }
+});
+
+// Manejo de señales de terminación
+process.on('SIGTERM', () => {
+  console.log('🛑 Recibida señal SIGTERM, cerrando servidor...');
+  server.close(() => {
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('🛑 Recibida señal SIGINT, cerrando servidor...');
+  server.close(() => {
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+  });
 });
 
 module.exports = app; 

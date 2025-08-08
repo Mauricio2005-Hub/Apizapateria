@@ -24,7 +24,7 @@ const swaggerDefinition = {
       description: "Servidor de desarrollo local",
     },
     {
-      url: "https://tu-app.onrender.com/api",
+      url: "https://zapateria-fercho-api.onrender.com/api",
       description: "Servidor de producción (Render)"
     }
   ],
@@ -45,68 +45,58 @@ const swaggerDefinition = {
           telefono: {
             type: 'string',
             description: 'Número de teléfono del cliente'
-          },
-          fecha_registro: {
-            type: 'string',
-            format: 'date-time',
-            description: 'Fecha de registro del cliente'
           }
         }
       },
       Pedido: {
         type: 'object',
-        required: ['cliente_id', 'sucursal_id', 'descripcion_trabajo', 'precio_total'],
+        required: ['idCliente', 'idSucursal', 'descripcion'],
         properties: {
           id: {
             type: 'integer',
             description: 'ID único del pedido'
           },
-          cliente_id: {
+          idCliente: {
             type: 'integer',
             description: 'ID del cliente asociado'
           },
-          sucursal_id: {
+          idSucursal: {
             type: 'integer',
             description: 'ID de la sucursal donde se realiza el trabajo'
           },
-          descripcion_trabajo: {
+          descripcion: {
             type: 'string',
             description: 'Descripción detallada del trabajo a realizar'
           },
-          precio_total: {
-            type: 'number',
-            description: 'Precio total del trabajo'
-          },
-          fecha_entrega_estimada: {
-            type: 'string',
-            format: 'date',
-            description: 'Fecha estimada de entrega'
-          },
           estado: {
             type: 'string',
-            enum: ['Pendiente', 'En Proceso', 'Completado', 'Entregado'],
+            enum: ['Pendiente', 'Entregado'],
             description: 'Estado actual del pedido'
-          },
-          observaciones: {
-            type: 'string',
-            description: 'Observaciones adicionales'
           },
           fecha_creacion: {
             type: 'string',
             format: 'date-time',
             description: 'Fecha de creación del pedido'
+          },
+          nombreCliente: {
+            type: 'string',
+            description: 'Nombre del cliente'
+          },
+          nombreSucursal: {
+            type: 'string',
+            description: 'Nombre de la sucursal'
           }
         }
       },
       Cobro: {
         type: 'object',
-        required: ['pedido_id', 'monto', 'metodo_pago'],
+        required: ['idPedido', 'monto', 'metodoPago'],
         properties: {
           id: {
             type: 'integer',
             description: 'ID único del cobro'
           },
-          pedido_id: {
+          idPedido: {
             type: 'integer',
             description: 'ID del pedido asociado'
           },
@@ -114,15 +104,23 @@ const swaggerDefinition = {
             type: 'number',
             description: 'Monto del cobro'
           },
-          metodo_pago: {
+          metodoPago: {
             type: 'string',
-            enum: ['Efectivo', 'Tarjeta', 'Transferencia'],
+            enum: ['Efectivo', 'Transferencia'],
             description: 'Método de pago utilizado'
           },
           fecha_cobro: {
             type: 'string',
             format: 'date-time',
             description: 'Fecha del cobro'
+          },
+          descripcionPedido: {
+            type: 'string',
+            description: 'Descripción del pedido asociado'
+          },
+          nombreCliente: {
+            type: 'string',
+            description: 'Nombre del cliente'
           }
         }
       },
@@ -150,17 +148,12 @@ const swaggerDefinition = {
             type: 'string',
             enum: ['Activa', 'Inactiva'],
             description: 'Estado de la sucursal'
-          },
-          fecha_creacion: {
-            type: 'string',
-            format: 'date-time',
-            description: 'Fecha de creación de la sucursal'
           }
         }
       },
       Material: {
         type: 'object',
-        required: ['nombre', 'cantidad_disponible', 'precio_unitario'],
+        required: ['nombre', 'precio_unitario'],
         properties: {
           id: {
             type: 'integer',
@@ -174,22 +167,17 @@ const swaggerDefinition = {
             type: 'string',
             description: 'Descripción del material'
           },
-          cantidad_disponible: {
-            type: 'integer',
-            description: 'Cantidad disponible en inventario'
-          },
           precio_unitario: {
             type: 'number',
             description: 'Precio unitario del material'
           },
-          categoria: {
-            type: 'string',
-            description: 'Categoría del material'
+          stock: {
+            type: 'integer',
+            description: 'Cantidad disponible en inventario'
           },
-          fecha_creacion: {
+          unidad: {
             type: 'string',
-            format: 'date-time',
-            description: 'Fecha de creación del material'
+            description: 'Unidad de medida del material'
           }
         }
       },
