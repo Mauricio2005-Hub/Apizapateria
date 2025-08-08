@@ -9,7 +9,8 @@
     "build": "npm install",
     "test": "node test-api.js",
     "test:render": "node test-render.js",
-    "test:production": "node test-render-production.js"
+    "test:production": "node test-render-production.js",
+    "verify:render": "node verificar-render.js"
   },
   "dependencies": {
     "axios": "^1.11.0",
