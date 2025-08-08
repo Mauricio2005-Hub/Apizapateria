@@ -2,6 +2,35 @@ const express = require('express');
 const router = express.Router();
 const { query, queryOne, run } = require('../db');
 
+/**
+ * @swagger
+ * /sucursales:
+ *   get:
+ *     summary: Obtener todas las sucursales
+ *     description: Retorna una lista de todas las sucursales ordenadas por nombre
+ *     tags: [Sucursales]
+ *     responses:
+ *       200:
+ *         description: Lista de sucursales obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Sucursal'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET - Obtener todas las sucursales
 router.get('/', async (req, res) => {
   try {
@@ -20,6 +49,70 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /sucursales:
+ *   post:
+ *     summary: Crear una nueva sucursal
+ *     description: Crea una nueva sucursal en el sistema
+ *     tags: [Sucursales]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - direccion
+ *               - telefono
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 description: Nombre de la sucursal
+ *                 example: "Sucursal Centro"
+ *               direccion:
+ *                 type: string
+ *                 description: Dirección de la sucursal
+ *                 example: "Av. Principal 123, Centro"
+ *               telefono:
+ *                 type: string
+ *                 description: Teléfono de la sucursal
+ *                 example: "555-1001"
+ *               estado:
+ *                 type: string
+ *                 enum: [Activa, Inactiva]
+ *                 description: Estado de la sucursal
+ *                 example: "Activa"
+ *     responses:
+ *       201:
+ *         description: Sucursal creada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Sucursal creada exitosamente"
+ *                 data:
+ *                   $ref: '#/components/schemas/Sucursal'
+ *       400:
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // POST - Crear nueva sucursal
 router.post('/', async (req, res) => {
   try {

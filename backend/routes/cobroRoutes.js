@@ -2,6 +2,35 @@ const express = require('express');
 const router = express.Router();
 const { query, queryOne, run } = require('../db');
 
+/**
+ * @swagger
+ * /cobros:
+ *   get:
+ *     summary: Obtener todos los cobros
+ *     description: Retorna una lista de todos los cobros con información del pedido y cliente asociado
+ *     tags: [Cobros]
+ *     responses:
+ *       200:
+ *         description: Lista de cobros obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Cobro'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET - Obtener todos los cobros
 router.get('/', async (req, res) => {
   try {
@@ -26,6 +55,66 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /cobros:
+ *   post:
+ *     summary: Crear un nuevo cobro
+ *     description: Crea un nuevo cobro para un pedido específico
+ *     tags: [Cobros]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idPedido
+ *               - monto
+ *               - metodoPago
+ *             properties:
+ *               idPedido:
+ *                 type: integer
+ *                 description: ID del pedido asociado
+ *                 example: 1
+ *               monto:
+ *                 type: number
+ *                 description: Monto del cobro
+ *                 example: 45.00
+ *               metodoPago:
+ *                 type: string
+ *                 enum: [Efectivo, Transferencia]
+ *                 description: Método de pago utilizado
+ *                 example: "Efectivo"
+ *     responses:
+ *       201:
+ *         description: Cobro creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Cobro creado exitosamente"
+ *                 data:
+ *                   $ref: '#/components/schemas/Cobro'
+ *       400:
+ *         description: Datos inválidos o pedido no encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // POST - Crear nuevo cobro
 router.post('/', async (req, res) => {
   try {

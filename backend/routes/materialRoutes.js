@@ -2,6 +2,35 @@ const express = require('express');
 const router = express.Router();
 const { query, queryOne, run } = require('../db');
 
+/**
+ * @swagger
+ * /materiales:
+ *   get:
+ *     summary: Obtener todos los materiales
+ *     description: Retorna una lista de todos los materiales ordenados por nombre
+ *     tags: [Materiales]
+ *     responses:
+ *       200:
+ *         description: Lista de materiales obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Material'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // GET - Obtener todos los materiales
 router.get('/', async (req, res) => {
   try {
@@ -20,6 +49,72 @@ router.get('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /materiales:
+ *   post:
+ *     summary: Crear un nuevo material
+ *     description: Crea un nuevo material en el inventario
+ *     tags: [Materiales]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - precio_unitario
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 description: Nombre del material
+ *                 example: "Suela de cuero"
+ *               descripcion:
+ *                 type: string
+ *                 description: Descripción del material
+ *                 example: "Suela de cuero natural para zapatos"
+ *               precio_unitario:
+ *                 type: number
+ *                 description: Precio unitario del material
+ *                 example: 25.50
+ *               stock:
+ *                 type: integer
+ *                 description: Cantidad disponible en inventario
+ *                 example: 100
+ *               unidad:
+ *                 type: string
+ *                 description: Unidad de medida
+ *                 example: "Unidad"
+ *     responses:
+ *       201:
+ *         description: Material creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Material creado exitosamente"
+ *                 data:
+ *                   $ref: '#/components/schemas/Material'
+ *       400:
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Error interno del servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // POST - Crear nuevo material
 router.post('/', async (req, res) => {
   try {
