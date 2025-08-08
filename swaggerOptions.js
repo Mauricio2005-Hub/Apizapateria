@@ -1,30 +1,31 @@
-const swaggerJSDoc = require('swagger-jsdoc');
-const fs = require('fs');
-const path = require('path');
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+const fs = require("fs");
+const path = require("path");
 
 const swaggerDefinition = {
-  openapi: '3.0.0',
+  openapi: "3.0.0",
   info: {
-    title: 'API de Zapatería - Reparadora Fercho',
-    version: '1.0.0',
-    description: 'Documentación completa de la API para el sistema de gestión de zapatería. Incluye todas las operaciones CRUD para clientes, pedidos, cobros, sucursales y materiales.',
+    title: "API de Zapatería - Reparadora Fercho",
+    version: "1.0.0",
+    description: "Documentación completa de la API para el sistema de gestión de zapatería. Incluye todas las operaciones CRUD para clientes, pedidos, cobros, sucursales y materiales.",
     contact: {
-      name: 'Reparadora Fercho',
-      email: 'info@reparadorafercho.com'
+      name: "Reparadora Fercho",
+      email: "info@reparadorafercho.com",
     },
     license: {
-      name: 'MIT',
-      url: 'https://opensource.org/licenses/MIT'
+      name: "MIT",
+      url: "https://opensource.org/licenses/MIT"
     }
   },
   servers: [
     {
-      url: 'http://localhost:8080/api',
-      description: 'Servidor de desarrollo local'
+      url: "http://localhost:8080/api",
+      description: "Servidor de desarrollo local",
     },
     {
-      url: 'https://tu-app.onrender.com/api',
-      description: 'Servidor de producción (Render)'
+      url: "https://tu-app.onrender.com/api",
+      description: "Servidor de producción (Render)"
     }
   ],
   components: {
@@ -228,14 +229,13 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-  apis: ['./backend/routes/*.js'], // Rutas de la API
+  apis: ["./backend/routes/*.js"], // Rutas de la API
 };
 
-const swaggerSpec = swaggerJSDoc(options);
+const swaggerSpec = swaggerJsdoc(options);
 
-// Guardar archivo JSON en disco
-const outputPath = path.join(__dirname, 'swagger.json');
-fs.writeFileSync(outputPath, JSON.stringify(swaggerSpec, null, 2));
-console.log('✅ Archivo swagger.json generado en:', outputPath);
+// ✅ Exportar el JSON al iniciar
+fs.writeFileSync(path.join(__dirname, "swagger.json"), JSON.stringify(swaggerSpec, null, 2));
+console.log("✅ Archivo swagger.json generado en:", path.join(__dirname, "swagger.json"));
 
 module.exports = swaggerSpec; 
