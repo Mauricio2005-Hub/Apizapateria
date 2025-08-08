@@ -19,7 +19,7 @@ const { testConnection } = require('./db');
 
 const app = express();
 
-// Configuración de puerto para Render
+// Configuración de puerto para Render (dinámico en producción)
 const PORT = process.env.PORT || 8080;
 
 // Middleware
@@ -138,6 +138,7 @@ app.use('*', (req, res) => {
 // Iniciar servidor
 const server = app.listen(PORT, async () => {
   console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
+  console.log(`🌍 Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📊 Menú principal: http://localhost:${PORT}`);
   console.log(`🔧 API Base: http://localhost:${PORT}/api`);
   console.log(`📚 Swagger UI disponible en http://localhost:${PORT}/api-docs`);
