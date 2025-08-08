@@ -1,0 +1,30 @@
+{
+  "name": "zapateria-app",
+  "version": "1.0.0",
+  "description": "Sistema de gestión simplificado para zapatería 'Reparadora Fercho'",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "build": "npm install"
+  },
+  "keywords": [
+    "zapateria",
+    "gestion",
+    "nodejs",
+    "express",
+    "sqlite"
+  ],
+  "author": "Reparadora Fercho",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "dotenv": "^16.3.1",
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

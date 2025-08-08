@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Cobros - Reparadora Fercho</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .table-section {
+            margin-top: 30px;
+        }
+
+        .table-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .monto {
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn">← Volver</a>
+            <h1>💰 Gestión de Cobros</h1>
+            <p>Reparadora Fercho - Sistema de Gestión</p>
+        </div>
+
+        <div class="content">
+            <!-- Formulario para crear cobro -->
+            <div class="form-section">
+                <h2>➕ Crear Nuevo Cobro</h2>
+                <form id="cobroForm">
+                    <div class="form-group">
+                        <label for="idPedido">Pedido:</label>
+                        <select id="idPedido" name="idPedido" required>
+                            <option value="">Seleccionar pedido...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="monto">Monto:</label>
+                        <input type="number" id="monto" name="monto" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="metodoPago">Método de Pago:</label>
+                        <select id="metodoPago" name="metodoPago" required>
+                            <option value="">Seleccionar método...</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Crear Cobro</button>
+                </form>
+            </div>
+
+            <!-- Tabla de cobros -->
+            <div class="table-section">
+                <h2>📋 Lista de Cobros</h2>
+                <div id="cobrosTable">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Cargando cobros...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPedidos();
+            loadCobros();
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('cobroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const cobro = {
+                idPedido: parseInt(formData.get('idPedido')),
+                monto: parseFloat(formData.get('monto')),
+                metodoPago: formData.get('metodoPago')
+            };
+
+            try {
+                const response = await fetch('/api/cobros', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(cobro)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Cobro creado exitosamente', 'success');
+                    e.target.reset();
+                    loadCobros();
+                } else {
+                    showAlert(data.message || 'Error al crear cobro', 'error');
+                }
+            } catch (error) {
+                showAlert('Error de conexión', 'error');
+            }
+        });
+
+        // Función para cargar pedidos en el select
+        async function loadPedidos() {
+            try {
+                const response = await fetch('/api/pedidos');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('idPedido');
+                    select.innerHTML = '<option value="">Seleccionar pedido...</option>';
+                    
+                    data.data.forEach(pedido => {
+                        const option = document.createElement('option');
+                        option.value = pedido.id;
+                        option.textContent = `#${pedido.id} - ${pedido.nombreCliente} - ${pedido.descripcion}`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error al cargar pedidos:', error);
+            }
+        }
+
+        // Función para cargar cobros
+        async function loadCobros() {
+            try {
+                const response = await fetch('/api/cobros');
+                const data = await response.json();
+
+                if (data.success) {
+                    const cobros = data.data;
+                    displayCobros(cobros);
+                } else {
+                    throw new Error(data.message || 'Error al cargar cobros');
+                }
+            } catch (error) {
+                document.getElementById('cobrosTable').innerHTML = `
+                    <div class="alert alert-error">
+                        Error al cargar cobros: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Función para mostrar cobros en tabla
+        function displayCobros(cobros) {
+            if (cobros.length === 0) {
+                document.getElementById('cobrosTable').innerHTML = `
+                    <div class="alert">
+                        No hay cobros registrados
+                    </div>
+                `;
+                return;
+            }
+
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pedido</th>
+                            <th>Cliente</th>
+                            <th>Descripción</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${cobros.map(cobro => `
+                            <tr>
+                                <td>#${cobro.id}</td>
+                                <td>#${cobro.idPedido}</td>
+                                <td>${cobro.nombreCliente}</td>
+                                <td>${cobro.descripcionPedido}</td>
+                                <td class="monto">$${cobro.monto.toFixed(2)}</td>
+                                <td>${cobro.metodoPago}</td>
+                                <td>${formatDate(cobro.fecha_cobro)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('cobrosTable').innerHTML = tableHTML;
+        }
+
+        // Función para formatear fechas
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-MX', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Función para mostrar alertas
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            document.querySelector('.content').insertBefore(alert, document.querySelector('.form-section'));
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 

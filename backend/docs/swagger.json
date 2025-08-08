@@ -1,0 +1,766 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Sistema de Gestión - Reparadora Fercho",
+    "description": "API completa para el sistema de gestión de zapatería 'Reparadora Fercho'. Incluye gestión de clientes, pedidos y cobros con validaciones y ejemplos detallados.",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Reparadora Fercho",
+      "email": "admin@reparadorafercho.com",
+      "url": "http://localhost:8080"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Servidor de desarrollo local"
+    }
+  ],
+  "paths": {
+    "/api/clientes": {
+      "get": {
+        "summary": "Obtener todos los clientes",
+        "description": "Retorna la lista completa de todos los clientes registrados en el sistema, ordenados por nombre.",
+        "tags": ["Clientes"],
+        "responses": {
+          "200": {
+            "description": "Lista de clientes obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Cliente"
+                      },
+                      "example": [
+                        {
+                          "id": 1,
+                          "nombre": "Juan Pérez",
+                          "telefono": "555-0101"
+                        },
+                        {
+                          "id": 2,
+                          "nombre": "María García",
+                          "telefono": "555-0202"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear nuevo cliente",
+        "description": "Crea un nuevo cliente en el sistema. Los campos nombre y teléfono son obligatorios.",
+        "tags": ["Clientes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["nombre", "telefono"],
+                "properties": {
+                  "nombre": {
+                    "type": "string",
+                    "description": "Nombre completo del cliente",
+                    "example": "Ana Martínez",
+                    "minLength": 2,
+                    "maxLength": 100
+                  },
+                  "telefono": {
+                    "type": "string",
+                    "description": "Número de teléfono del cliente",
+                    "example": "555-0404",
+                    "pattern": "^[0-9\\-\\+\\(\\)\\s]+$"
+                  }
+                }
+              },
+              "examples": {
+                "cliente_basico": {
+                  "summary": "Cliente básico",
+                  "value": {
+                    "nombre": "Ana Martínez",
+                    "telefono": "555-0404"
+                  }
+                },
+                "cliente_con_telefono_formato": {
+                  "summary": "Cliente con formato de teléfono",
+                  "value": {
+                    "nombre": "Carlos López",
+                    "telefono": "(555) 123-4567"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cliente creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Cliente creado exitosamente"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Cliente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "campos_faltantes": {
+                    "summary": "Campos obligatorios faltantes",
+                    "value": {
+                      "success": false,
+                      "message": "Nombre y teléfono son obligatorios"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clientes/{id}": {
+      "delete": {
+        "summary": "Eliminar cliente",
+        "description": "Elimina un cliente del sistema. Solo se puede eliminar si no tiene pedidos asociados.",
+        "tags": ["Clientes"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID único del cliente",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cliente eliminado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Cliente eliminado exitosamente"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No se puede eliminar el cliente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "pedidos_asociados": {
+                    "summary": "Cliente con pedidos asociados",
+                    "value": {
+                      "success": false,
+                      "message": "No se puede eliminar el cliente porque tiene pedidos asociados"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cliente no encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pedidos": {
+      "get": {
+        "summary": "Obtener todos los pedidos",
+        "description": "Retorna la lista de todos los pedidos con información del cliente asociado, ordenados por fecha de creación (más recientes primero).",
+        "tags": ["Pedidos"],
+        "responses": {
+          "200": {
+            "description": "Lista de pedidos obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Pedido"
+                      },
+                      "example": [
+                        {
+                          "id": 1,
+                          "idCliente": 1,
+                          "descripcion": "Reparación de suela",
+                          "estado": "Pendiente",
+                          "fecha_creacion": "2025-08-08T03:00:00.000Z",
+                          "nombreCliente": "Juan Pérez"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear nuevo pedido",
+        "description": "Crea un nuevo pedido de reparación en el sistema. El cliente debe existir y la descripción es obligatoria.",
+        "tags": ["Pedidos"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["idCliente", "descripcion"],
+                "properties": {
+                  "idCliente": {
+                    "type": "integer",
+                    "description": "ID del cliente que solicita el pedido",
+                    "minimum": 1,
+                    "example": 1
+                  },
+                  "descripcion": {
+                    "type": "string",
+                    "description": "Descripción detallada del trabajo a realizar",
+                    "minLength": 10,
+                    "maxLength": 500,
+                    "example": "Reparación de suela de zapato deportivo, cambio de tacón y ajuste de horma"
+                  },
+                  "estado": {
+                    "type": "string",
+                    "description": "Estado actual del pedido",
+                    "enum": ["Pendiente", "Entregado"],
+                    "default": "Pendiente",
+                    "example": "Pendiente"
+                  }
+                }
+              },
+              "examples": {
+                "pedido_basico": {
+                  "summary": "Pedido básico",
+                  "value": {
+                    "idCliente": 1,
+                    "descripcion": "Reparación de suela de zapato",
+                    "estado": "Pendiente"
+                  }
+                },
+                "pedido_detallado": {
+                  "summary": "Pedido con descripción detallada",
+                  "value": {
+                    "idCliente": 2,
+                    "descripcion": "Cambio completo de suela, reparación de costuras y limpieza general del calzado",
+                    "estado": "Pendiente"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pedido creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Pedido creado exitosamente"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Pedido"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "campos_faltantes": {
+                    "summary": "Campos obligatorios faltantes",
+                    "value": {
+                      "success": false,
+                      "message": "ID del cliente y descripción son obligatorios"
+                    }
+                  },
+                  "cliente_no_existe": {
+                    "summary": "Cliente no encontrado",
+                    "value": {
+                      "success": false,
+                      "message": "Cliente no encontrado"
+                    }
+                  },
+                  "estado_invalido": {
+                    "summary": "Estado inválido",
+                    "value": {
+                      "success": false,
+                      "message": "Estado debe ser \"Pendiente\" o \"Entregado\""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cobros": {
+      "get": {
+        "summary": "Obtener todos los cobros",
+        "description": "Retorna la lista de todos los cobros con información del pedido y cliente asociado, ordenados por fecha de cobro (más recientes primero).",
+        "tags": ["Cobros"],
+        "responses": {
+          "200": {
+            "description": "Lista de cobros obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Cobro"
+                      },
+                      "example": [
+                        {
+                          "id": 1,
+                          "idPedido": 1,
+                          "monto": 45.00,
+                          "metodoPago": "Efectivo",
+                          "fecha_cobro": "2025-08-08T03:00:00.000Z",
+                          "descripcionPedido": "Reparación de suela",
+                          "nombreCliente": "Juan Pérez"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear nuevo cobro",
+        "description": "Registra un nuevo cobro por un pedido específico. Solo se puede crear un cobro por pedido.",
+        "tags": ["Cobros"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["idPedido", "monto", "metodoPago"],
+                "properties": {
+                  "idPedido": {
+                    "type": "integer",
+                    "description": "ID del pedido al que corresponde el cobro",
+                    "minimum": 1,
+                    "example": 1
+                  },
+                  "monto": {
+                    "type": "number",
+                    "description": "Monto del cobro en pesos",
+                    "minimum": 0.01,
+                    "example": 45.00
+                  },
+                  "metodoPago": {
+                    "type": "string",
+                    "description": "Método de pago utilizado",
+                    "enum": ["Efectivo", "Transferencia"],
+                    "example": "Efectivo"
+                  }
+                }
+              },
+              "examples": {
+                "cobro_efectivo": {
+                  "summary": "Cobro en efectivo",
+                  "value": {
+                    "idPedido": 1,
+                    "monto": 45.00,
+                    "metodoPago": "Efectivo"
+                  }
+                },
+                "cobro_transferencia": {
+                  "summary": "Cobro por transferencia",
+                  "value": {
+                    "idPedido": 2,
+                    "monto": 60.00,
+                    "metodoPago": "Transferencia"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cobro creado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Cobro creado exitosamente"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Cobro"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "campos_faltantes": {
+                    "summary": "Campos obligatorios faltantes",
+                    "value": {
+                      "success": false,
+                      "message": "ID del pedido, monto y método de pago son obligatorios"
+                    }
+                  },
+                  "pedido_no_existe": {
+                    "summary": "Pedido no encontrado",
+                    "value": {
+                      "success": false,
+                      "message": "Pedido no encontrado"
+                    }
+                  },
+                  "cobro_ya_existe": {
+                    "summary": "Ya existe un cobro para este pedido",
+                    "value": {
+                      "success": false,
+                      "message": "Ya existe un cobro para este pedido"
+                    }
+                  },
+                  "metodo_invalido": {
+                    "summary": "Método de pago inválido",
+                    "value": {
+                      "success": false,
+                      "message": "Método de pago debe ser \"Efectivo\" o \"Transferencia\""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno del servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cliente": {
+        "type": "object",
+        "description": "Información de un cliente del sistema",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único del cliente",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "description": "Nombre completo del cliente",
+            "example": "Juan Pérez"
+          },
+          "telefono": {
+            "type": "string",
+            "description": "Número de teléfono del cliente",
+            "example": "555-0101"
+          }
+        },
+        "required": ["id", "nombre", "telefono"]
+      },
+      "Pedido": {
+        "type": "object",
+        "description": "Información de un pedido de reparación",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único del pedido",
+            "example": 1
+          },
+          "idCliente": {
+            "type": "integer",
+            "description": "ID del cliente que solicitó el pedido",
+            "example": 1
+          },
+          "descripcion": {
+            "type": "string",
+            "description": "Descripción del trabajo a realizar",
+            "example": "Reparación de suela de zapato"
+          },
+          "estado": {
+            "type": "string",
+            "description": "Estado actual del pedido",
+            "enum": ["Pendiente", "Entregado"],
+            "example": "Pendiente"
+          },
+          "fecha_creacion": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora de creación del pedido",
+            "example": "2025-08-08T03:00:00.000Z"
+          },
+          "nombreCliente": {
+            "type": "string",
+            "description": "Nombre del cliente asociado al pedido",
+            "example": "Juan Pérez"
+          }
+        },
+        "required": ["id", "idCliente", "descripcion", "estado", "fecha_creacion", "nombreCliente"]
+      },
+      "Cobro": {
+        "type": "object",
+        "description": "Información de un cobro registrado",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "ID único del cobro",
+            "example": 1
+          },
+          "idPedido": {
+            "type": "integer",
+            "description": "ID del pedido al que corresponde el cobro",
+            "example": 1
+          },
+          "monto": {
+            "type": "number",
+            "description": "Monto del cobro en pesos",
+            "example": 45.00
+          },
+          "metodoPago": {
+            "type": "string",
+            "description": "Método de pago utilizado",
+            "enum": ["Efectivo", "Transferencia"],
+            "example": "Efectivo"
+          },
+          "fecha_cobro": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Fecha y hora del cobro",
+            "example": "2025-08-08T03:00:00.000Z"
+          },
+          "descripcionPedido": {
+            "type": "string",
+            "description": "Descripción del pedido asociado",
+            "example": "Reparación de suela"
+          },
+          "nombreCliente": {
+            "type": "string",
+            "description": "Nombre del cliente asociado al pedido",
+            "example": "Juan Pérez"
+          }
+        },
+        "required": ["id", "idPedido", "monto", "metodoPago", "fecha_cobro", "descripcionPedido", "nombreCliente"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "description": "Respuesta de error estándar",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensaje descriptivo del error",
+            "example": "Error al procesar la solicitud"
+          },
+          "error": {
+            "type": "object",
+            "description": "Detalles adicionales del error (solo en desarrollo)",
+            "additionalProperties": true
+          }
+        },
+        "required": ["success", "message"]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Clientes",
+      "description": "Operaciones para gestionar clientes del sistema",
+      "externalDocs": {
+        "description": "Más información sobre clientes",
+        "url": "http://localhost:8080/cliente"
+      }
+    },
+    {
+      "name": "Pedidos",
+      "description": "Operaciones para gestionar pedidos de reparación",
+      "externalDocs": {
+        "description": "Más información sobre pedidos",
+        "url": "http://localhost:8080/pedido"
+      }
+    },
+    {
+      "name": "Cobros",
+      "description": "Operaciones para gestionar cobros de pedidos",
+      "externalDocs": {
+        "description": "Más información sobre cobros",
+        "url": "http://localhost:8080/cobro"
+      }
+    }
+  ],
+  "externalDocs": {
+    "description": "Documentación completa del sistema",
+    "url": "http://localhost:8080"
+  }
+} 

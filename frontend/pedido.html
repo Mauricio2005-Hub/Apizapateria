@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pedidos - Reparadora Fercho</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .form-section, .table-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-section h2, .table-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-pendiente {
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .status-entregado {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn">← Volver</a>
+            <h1>📋 Gestión de Pedidos</h1>
+            <p>Reparadora Fercho - Sistema de Gestión</p>
+        </div>
+
+        <div class="content">
+            <!-- Formulario para crear pedido -->
+            <div class="form-section">
+                <h2>➕ Crear Nuevo Pedido</h2>
+                <form id="pedidoForm">
+                    <div class="form-group">
+                        <label for="idCliente">Cliente:</label>
+                        <select id="idCliente" name="idCliente" required>
+                            <option value="">Seleccionar cliente...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="idSucursal">Sucursal:</label>
+                        <select id="idSucursal" name="idSucursal" required>
+                            <option value="">Seleccionar sucursal...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripción del trabajo:</label>
+                        <textarea id="descripcion" name="descripcion" required placeholder="Describa el trabajo a realizar..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado:</label>
+                        <select id="estado" name="estado">
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Entregado">Entregado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Crear Pedido</button>
+                </form>
+            </div>
+
+            <!-- Tabla de pedidos -->
+            <div class="table-section">
+                <h2>📋 Lista de Pedidos</h2>
+                <div id="pedidosTable">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Cargando pedidos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadClientes();
+            loadSucursales();
+            loadPedidos();
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('pedidoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const pedidoData = {
+                idCliente: parseInt(formData.get('idCliente')),
+                idSucursal: parseInt(formData.get('idSucursal')),
+                descripcion: formData.get('descripcion'),
+                estado: formData.get('estado')
+            };
+
+            try {
+                const response = await fetch('/api/pedidos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(pedidoData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('Pedido creado exitosamente', 'success');
+                    e.target.reset();
+                    loadPedidos();
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Error al crear el pedido', 'error');
+            }
+        });
+
+        // Función para cargar clientes en el select
+        async function loadClientes() {
+            try {
+                const response = await fetch('/api/clientes');
+                const result = await response.json();
+
+                if (result.success) {
+                    const select = document.getElementById('idCliente');
+                    select.innerHTML = '<option value="">Seleccionar cliente...</option>';
+                    
+                    result.data.forEach(cliente => {
+                        const option = document.createElement('option');
+                        option.value = cliente.id;
+                        option.textContent = cliente.nombre;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                showAlert('Error al cargar clientes', 'error');
+            }
+        }
+
+        // Función para cargar sucursales en el select
+        async function loadSucursales() {
+            try {
+                const response = await fetch('/api/sucursales');
+                const result = await response.json();
+
+                if (result.success) {
+                    const select = document.getElementById('idSucursal');
+                    select.innerHTML = '<option value="">Seleccionar sucursal...</option>';
+                    
+                    result.data.forEach(sucursal => {
+                        const option = document.createElement('option');
+                        option.value = sucursal.id;
+                        option.textContent = sucursal.nombre;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                showAlert('Error al cargar sucursales', 'error');
+            }
+        }
+
+        // Función para cargar pedidos
+        async function loadPedidos() {
+            try {
+                const response = await fetch('/api/pedidos');
+                const result = await response.json();
+
+                if (result.success) {
+                    displayPedidos(result.data);
+                } else {
+                    showAlert('Error al cargar pedidos', 'error');
+                }
+            } catch (error) {
+                showAlert('Error al cargar pedidos', 'error');
+            }
+        }
+
+        // Función para mostrar pedidos en tabla
+        function displayPedidos(pedidos) {
+            const tableContainer = document.getElementById('pedidosTable');
+            
+            if (pedidos.length === 0) {
+                tableContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No hay pedidos registrados</p>';
+                return;
+            }
+
+            const table = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Sucursal</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${pedidos.map(pedido => `
+                                <tr>
+                                    <td>${pedido.id}</td>
+                                    <td>${pedido.nombreCliente}</td>
+                                    <td>${pedido.nombreSucursal}</td>
+                                    <td>${pedido.descripcion}</td>
+                                    <td>
+                                        <span class="status-${pedido.estado.toLowerCase()}">
+                                            ${pedido.estado}
+                                        </span>
+                                    </td>
+                                    <td>${formatDate(pedido.fecha_creacion)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            tableContainer.innerHTML = table;
+        }
+
+        // Función para formatear fechas
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Función para mostrar alertas
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            document.querySelector('.container').insertBefore(alert, document.querySelector('.header'));
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
