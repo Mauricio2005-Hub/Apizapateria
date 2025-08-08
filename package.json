@@ -10,7 +10,8 @@
     "test": "node test-api.js",
     "test:render": "node test-render.js",
     "test:production": "node test-render-production.js",
-    "verify:render": "node verificar-render.js"
+    "verify:render": "node verificar-render.js",
+    "test:api-fix": "node test-api-fix.js"
   },
   "dependencies": {
     "axios": "^1.11.0",
